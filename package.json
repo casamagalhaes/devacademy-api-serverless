@@ -9,10 +9,14 @@
     "db:reset": "node -e \"const db = require('./database'); (async () => await db.reset())();\""
   },
   "dependencies": {
+    "@aws/dynamodb-data-mapper": "^0.7.3",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "morgan": "~1.9.1",
     "sqlite3": "^5.0.2",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.853.0"
   }
 }
