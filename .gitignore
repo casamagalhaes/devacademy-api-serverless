@@ -1,0 +1,13 @@
+/coverage
+/node_modules
+.npm
+.eslintcache
+.env
+.env.test
+*.lcov
+debug.js
+debug.json
+/dist
+.vscode/launch.json
+*.zip
+*.sqlite

@@ -1,0 +1,18 @@
+{
+  "name": "devacademy-api-sqlite",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "db:create": "node -e \"const db = require('./database'); (async () => await db.create())();\"",
+    "db:destroy": "node -e \"const db = require('./database'); (async () => await db.destroy())();\"",
+    "db:reset": "node -e \"const db = require('./database'); (async () => await db.reset())();\""
+  },
+  "dependencies": {
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "morgan": "~1.9.1",
+    "sqlite3": "^5.0.2",
+    "uuid": "^8.3.2"
+  }
+}
