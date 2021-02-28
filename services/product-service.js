@@ -8,7 +8,11 @@ const forAwaitOf = require("../lib/for-await-of");
 
 module.exports = class ProductService {
   constructor() {
-    this._client = new DynamoDB({ endpoint: new Endpoint("http://localhost:8000") });
+    this._client = new DynamoDB(
+      process.env.DYNAMODB_ENDPOINT
+        ? { endpoint: new Endpoint(process.env.DYNAMODB_ENDPOINT) }
+        : undefined
+    );
     this._mapper = new DataMapper({ client: this._client });
     this._modelClass = Product;
   }
