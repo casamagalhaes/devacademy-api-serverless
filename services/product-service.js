@@ -3,49 +3,60 @@ const database = require('../database');
 const { ValidationError, NotFoundError } = require('../lib/errors');
 
 module.exports = class ProductService {
-    constructor(connection) {
-        this.connection = connection || database.open();
-    }
+  constructor(connection) {
+    this.connection = connection || database.open();
+  }
 
-    async validateBeforeSave(data) {
-        if (!data.name) throw new ValidationError('name is required');
-        if (!data.price) throw new ValidationError('price is required');
-        if (data.price < 0) throw new ValidationError('price must be greater than 0');
-    }
+  async validateBeforeSave(product) {
+    if (!product.name) throw new ValidationError('name is required');
+    if (!product.price) throw new ValidationError('price is required');
+    if (product.price < 0) throw new ValidationError('price must be greater than 0');
+  }
 
-    async create(data) {
-        await this.validateBeforeSave(data);
-        const contents = Object.assign({ id: uuid() }, data);
-        await database.execute(
-            `INSERT INTO products (id, name, price) VALUES (?, ?, ?)`,
-            [contents.id, contents.name, contents.price],
-            this.connection
-        );
-        return contents;
-    }
+  async create(product) {
+    await this.validateBeforeSave(product);
+    const contents = Object.assign({ id: uuid() }, product);
+    await database.execute(
+      `INSERT INTO products (id, name, price) VALUES (?, ?, ?)`,
+      [contents.id, contents.name, contents.price],
+      this.connection
+    );
+    return contents;
+  }
 
-    async update(id, data) {
-        await this.validateBeforeSave(data);
-        return await database.execute(
-            `UPDATE products SET name = ?, price = ? WHERE id = ?`,
-            [data.name, data.price, data.id],
-            this.connection
-        );
-    }
+  async validateExists(id) {
+    const exists = await this.findById(id);
+    if (!exists) throw new NotFoundError('product not found');
+  }
 
-    async findAll() {
-        return await database.query('SELECT * FROM products', [], this.connection);
-    }
+  async update(id, product) {
+    if (id !== product.id) throw new ValidationError('resource id is different from the body id');
+    await this.validateBeforeSave(product);
+    await this.validateExists(id);
+    await database.execute(
+      'UPDATE products SET `name` = ?, `price` = ? WHERE `id` = ?',
+      [product.name, product.price, product.id],
+      this.connection
+    );
+    return await this.findById(id);
+  }
 
-    async findById(id) {
-        const data = await database.query('SELECT * FROM products WHERE id = ? LIMIT 1', [id], this.connection);
-        if (!data || !data.length) throw new NotFoundError('product not found');
-        return data[0];
-    }
+  async findAll() {
+    return await database.query('SELECT * FROM products', [], this.connection);
+  }
 
-    async delete(id) {
-        const affectedRows = await database.execute('DELETE FROM products WHERE id = ?', [id], this.connection);
-        if (!affectedRows) throw new NotFoundError('product not found');
-        return affectedRows;
-    }
-}
+  async findById(id) {
+    const [product] = await database.query(
+      'SELECT * FROM products WHERE id = ? LIMIT 1',
+      [id],
+      this.connection
+    );
+    if (!product) throw new NotFoundError('product not found');
+    return product;
+  }
+
+  async delete(id) {
+    await this.validateExists(id);
+    await database.execute('DELETE FROM products WHERE id = ?', [id], this.connection);
+  }
+};

@@ -1,63 +1,74 @@
 const fs = require('fs');
+const { promisify } = require('util');
 const sqlite3 = require('sqlite3').verbose();
-const filename = process.env.DATABASE || ':memory:';
 
-const open = () => {
-    return new sqlite3.Database(filename);
-}
+const DATABASE_FILENAME = process.env.DATABASE || ':memory:';
+
+const open = () => new sqlite3.Database(DATABASE_FILENAME);
+
+const ensureConnection = async (alreadyConnection) => {
+  const connection = alreadyConnection || open();
+  const runAsync = promisify(connection.run).bind(connection);
+  const allAsync = promisify(connection.all).bind(connection);
+  const closeAsync = promisify(connection.close).bind(connection);
+  return { connection, runAsync, allAsync, closeAsync };
+};
+
+const runScript = async (script, alreadyConnection) => {
+  const { connection, closeAsync, runAsync } = await ensureConnection(alreadyConnection);
+  return new Promise((resolve, reject) =>
+    connection.serialize(async () => {
+      try {
+        for (statement of script.split('GO;')) {
+          console.log('[execute]: sql: %s', statement.trim());
+          await runAsync(statement);
+        }
+        return resolve();
+      } catch (error) {
+        return reject(error);
+      }
+    })
+  );
+};
 
 const create = async () => {
-    const db = await open();
-    const script = fs.readFileSync(`${__dirname}/migrations/database.sql`).toString();
-    const statements = script.split('GO;');
-    db.serialize(() => {
-        for (statement of statements) {
-            db.run(statement);
-        }
-    });
-    await db.close();
-    console.log('database created');
-}
+  const { connection, closeAsync, runAsync } = await ensureConnection();
+  const script = await fs.promises.readFile(`${__dirname}/migrations/database.sql`, {
+    encoding: 'utf-8',
+  });
+  await runScript(script, connection);
+  await closeAsync();
+  console.log('[database] created');
+};
 
 const destroy = async () => {
-    if (filename !== ':memory:') {
-        if (fs.existsSync(filename)) {
-            fs.unlinkSync(filename);
-        }
-    }
-    console.log('database destroyed');
-}
+  const isInMemory = DATABASE_FILENAME === ':memory:';
+  if (!isInMemory && fs.existsSync(DATABASE_FILENAME)) await fs.promises.unlink(DATABASE_FILENAME);
+  console.log('[database] destroyed');
+};
 
 const reset = async () => {
-    await destroy();
-    await create();
-}
+  await destroy();
+  await create();
+};
 
-const execute = async (sql, params, connection) => {
-    const db = connection || await open();
-    return new Promise((resolve, reject) => {
-        db.run(sql, params, function (err) {
-            if (err) reject(err)
-            else resolve(this.changes);
-        })
-    });
-}
+const execute = async (sql, params, alreadyConnection) => {
+  const { runAsync } = await ensureConnection(alreadyConnection);
+  console.log('[execute]: sql: %s \n\t params:', sql, params);
+  return await runAsync(sql, params);
+};
 
-const query = async (sql, params, connection) => {
-    const db = connection || await open();
-    return new Promise((resolve, reject) => {
-        db.all(sql, params, (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows);
-        });
-    });
-}
+const query = async (sql, params, alreadyConnection) => {
+  const { allAsync } = await ensureConnection(alreadyConnection);
+  console.log('[query]: sql: %s \n\t params:', sql, params);
+  return await allAsync(sql, params);
+};
 
 module.exports = {
-    open,
-    execute,
-    query,
-    create,
-    destroy,
-    reset
-}
+  open,
+  execute,
+  query,
+  create,
+  destroy,
+  reset,
+};
