@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-const http = require("http");
-const url = require("url");
-const querystring = require("querystring");
-const { handler } = require("./index");
+const http = require('http');
+const url = require('url');
+const querystring = require('querystring');
+const { handler } = require('./index');
 
 const PORT = 3000;
 
@@ -17,24 +17,24 @@ const eventRequestGenerator = (httpMethod, path, body, headers) => {
     requestContext: {
       elb: {
         targetGroupArn:
-          "arn:aws:elasticloadbalancing:us-east-1:901194531837:targetgroup/panamah-dashboard-hom-target-gp/2c6ab79f901cf5fb",
+          'arn:aws:elasticloadbalancing:us-east-1:901194531837:targetgroup/panamah-dashboard-hom-target-gp/2c6ab79f901cf5fb',
       },
     },
     headers: {
-      accept: "*/*",
-      "accept-encoding": "gzip, deflate, br",
-      "accept-language": "en-US,en;q=0.9",
-      "access-control-request-headers": "authorization",
-      "access-control-request-method": "GET",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      "x-amzn-trace-id": "Root=1-5df50966-fcef36da4eaf8f4abedb80ea",
-      "x-forwarded-for": "191.6.8.217",
-      "x-forwarded-port": "443",
-      "x-forwarded-proto": "https",
+      accept: '*/*',
+      'accept-encoding': 'gzip, deflate, br',
+      'accept-language': 'en-US,en;q=0.9',
+      'access-control-request-headers': 'authorization',
+      'access-control-request-method': 'GET',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'cross-site',
+      'x-amzn-trace-id': 'Root=1-5df50966-fcef36da4eaf8f4abedb80ea',
+      'x-forwarded-for': '191.6.8.217',
+      'x-forwarded-port': '443',
+      'x-forwarded-proto': 'https',
       ...(headers || {}),
     },
-    body: body || "null",
+    body: body || 'null',
     isBase64Encoded: false,
   };
 };
@@ -43,10 +43,10 @@ const getBody = async (req) =>
   new Promise((resolve) => {
     let body = [];
     req
-      .on("data", (chunk) => {
+      .on('data', (chunk) => {
         body.push(chunk);
       })
-      .on("end", () => {
+      .on('end', () => {
         body = Buffer.concat(body).toString();
         resolve(body);
       });
@@ -63,7 +63,7 @@ const server = http.createServer(async (req, res) => {
   res.writeHead(response.statusCode, response.headers);
 
   if (response.isBase64Encoded) {
-    res.end(Buffer.from(response.body, "base64"));
+    res.end(Buffer.from(response.body, 'base64'));
   } else {
     res.end(response.body);
   }
