@@ -8,6 +8,5 @@
 debug.js
 debug.json
 /dist
-.vscode/launch.json
 *.zip
 *.sqlite

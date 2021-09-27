@@ -1,5 +1,5 @@
-const App = require("./lib/app");
-const productsRouter = require("./routes/products");
+const App = require('./lib/app');
+const productsRouter = require('./routes/products');
 
 module.exports.handler = async (event) => {
   const app = new App(event);
@@ -11,7 +11,7 @@ module.exports.handler = async (event) => {
     console.error(error);
     return app.makeResponse({
       statusCode: 500,
-      body: "Erro interno",
+      body: 'server error',
     });
   }
 };
