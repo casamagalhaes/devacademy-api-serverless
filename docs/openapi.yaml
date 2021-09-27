@@ -1,0 +1,138 @@
+openapi: 3.0.1
+info:
+  title: REST API
+  description: Simple REST API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: product
+    description: Product Collection
+paths:
+  /products:
+    get:
+      tags:
+        - product
+      summary: List products
+      operationId: listProducts
+      responses:
+        200:
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+      x-codegen-request-body-name: body
+    post:
+      tags:
+        - product
+      summary: Add a new product
+      operationId: addProduct
+      requestBody:
+        description: Payload of product
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Invalid input
+          content: {}
+      x-codegen-request-body-name: body
+  /products/{productId}:
+    get:
+      tags:
+        - product
+      summary: Find product by ID
+      description: Returns a single product
+      operationId: getProductById
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: Product not found
+          content: {}
+    put:
+      tags:
+        - product
+      summary: Updates a product
+      operationId: updateProduct
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product that needs to be updated
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+    delete:
+      tags:
+        - product
+      summary: Deletes a product
+      operationId: deleteProduct
+      parameters:
+        - name: productId
+          in: path
+          description: Product id to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        206:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: Product not found
+          content: {}
+components:
+  schemas:
+    Product:
+      required:
+        - name
+        - photoUrls
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: number
