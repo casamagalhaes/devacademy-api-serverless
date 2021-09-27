@@ -1,29 +1,24 @@
-const { DynamoDbSchema, DynamoDbTable } = require("@aws/dynamodb-data-mapper");
+const { DynamoDbSchema, DynamoDbTable } = require('@aws/dynamodb-data-mapper');
 
 class Product {
-  constructor(opts) {
-    if (opts) {
-      Object.keys(opts).forEach((key) => {
-        this[key] = opts[key];
-      });
-    }
+  constructor(opts = {}) {
+    Object.assign(this, opts);
+  }
+
+  get [DynamoDbTable]() {
+    return process.env.PRODUCTS_TABLE || 'products';
+  }
+
+  get [DynamoDbSchema]() {
+    return {
+      id: {
+        type: 'String',
+        keyType: 'HASH',
+      },
+      name: { type: 'String' },
+      price: { type: 'Number' },
+    };
   }
 }
-
-Object.defineProperties(Product.prototype, {
-  [DynamoDbTable]: {
-    value: process.env.PRODUCTS_TABLE || "products",
-  },
-  [DynamoDbSchema]: {
-    value: {
-      id: {
-        type: "String",
-        keyType: "HASH",
-      },
-      name: { type: "String" },
-      price: { type: "Number" },
-    },
-  },
-});
 
 module.exports = Product;

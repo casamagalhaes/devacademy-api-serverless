@@ -8,7 +8,8 @@
       "skipFiles": ["<node_internals>/*"],
       "program": "${workspaceFolder}/bin/create.js",
       "env": {
-        "DATABASE": "db.sqlite"
+        "AWS_REGION": "us-east-1",
+        "DYNAMODB_ENDPOINT": "http://localhost:8000"
       }
     },
     {
@@ -18,7 +19,8 @@
       "skipFiles": ["<node_internals>/*"],
       "program": "${workspaceFolder}/bin/destroy.js",
       "env": {
-        "DATABASE": "db.sqlite"
+        "AWS_REGION": "us-east-1",
+        "DYNAMODB_ENDPOINT": "http://localhost:8000"
       }
     },
     {
@@ -28,7 +30,8 @@
       "skipFiles": ["<node_internals>/*"],
       "program": "${workspaceFolder}/bin/reset.js",
       "env": {
-        "DATABASE": "db.sqlite"
+        "AWS_REGION": "us-east-1",
+        "DYNAMODB_ENDPOINT": "http://localhost:8000"
       }
     },
     {
@@ -38,7 +41,8 @@
       "skipFiles": ["<node_internals>/*"],
       "program": "${workspaceFolder}/server.js",
       "env": {
-        "DATABASE": "db.sqlite",
+        "AWS_REGION": "us-east-1",
+        "DYNAMODB_ENDPOINT": "http://localhost:8000",
         "DEBUG": "devacademy*"
       },
       "restart": true,
